@@ -28,3 +28,11 @@
     (is (= false (identificador? 2)))
     (is (= false (identificador? "2")))
     ))
+
+(deftest test-cadena?
+  (testing "Prueba de funcion cadena?"
+    (is (= true (cadena? "'Hola'")))
+    (is (= false (cadena? "Hola")))
+    (is (= false (cadena? "'Hola")))
+    (is (= false (cadena? 'Hola)))
+    ))
