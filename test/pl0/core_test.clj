@@ -27,6 +27,8 @@
     (is (= true (identificador? "V2")))
     (is (= false (identificador? 2)))
     (is (= false (identificador? "2")))
+    (is (= true (identificador? "V7R30K")))
+    (is (= false (identificador? "V7-45")))
     ))
 
 (deftest test-cadena?

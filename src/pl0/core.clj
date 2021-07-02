@@ -733,7 +733,7 @@
 (defn identificador? [x]
   (and 
     (not (palabra-reservada? x)) 
-    (boolean (re-matches #"^[qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM_-].*" (str x)))
+    (boolean (re-matches #"^[QWERTYUIOPASDFGHJKLZXCVBNM].[QWERTYUIOPASDFGHJKLZXCVBNM1234567890]*" (str x)))
   )
 )
 
