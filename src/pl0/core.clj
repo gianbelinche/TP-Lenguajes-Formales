@@ -66,6 +66,7 @@
 (declare dump)
 (declare a-mayusculas-aux)
 (declare palabras_reservadas)
+(declare cargar-variables_en_tabla)
 
 (defn -main
   "TP Interprete PL0 Belinche"
@@ -820,6 +821,7 @@
     )
 )
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Recibe un ambiente y, si su estado no es :sin-errores, lo devuelve intacto. De lo contrario, verifica si se debe
 ; parsear una declaracion de variables de PL/0. Si no es asi, se devuelve el ambiente intacto. De lo contrario, se
@@ -830,7 +832,42 @@
 ; user=> (declaracion-var ['VAR (list 'X (symbol ",") 'Y (symbol ";") 'BEGIN 'X (symbol ":=") 7 (symbol ";") 'Y (symbol ":=") 12 (symbol ";") 'END (symbol ".")) [] :sin-errores [[0] []] 0 '[[JMP ?]]])
 ; [BEGIN (X := 7 ; Y := 12 ; END .) [VAR X , Y ;] :sin-errores [[0] [[X VAR 0] [Y VAR 1]]] 2 [[JMP ?]]]
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defn cargar-variables_en_tabla [amb]
+  (cond
+    (= ((into [] (amb 1)) 0) (symbol ";")) 
+    (as-> amb v 
+      (assoc v 2 (into [] (concat (v 2) [(symbol ";")])))
+      (assoc v 1 (rest (v 1)))
+      (assoc v 1 (rest (v 1)))
+    )
+    (= ((into [] (amb 1)) 0) (symbol ",")) 
+    (as-> amb v 
+      (assoc v 2 (into [] (concat (v 2) [((into [] (v 1)) 0)] [((into [] (v 1)) 1)] )) )
+      (assoc v 1 (rest (v 1)))
+      (cargar-variables_en_tabla v)
+    )
+    :else 
+    (as-> amb v
+      (cargar-var-en-tabla v)
+      (assoc v 1 (rest (v 1)))
+      (cargar-variables_en_tabla v)
+    )
+  )
+)
+
 (defn declaracion-var [amb]
+  (cond 
+    (not= :sin-errores (amb 3)) amb
+    (not= "VAR" (str (amb 0))) amb
+    :else
+      (as-> amb v
+        (assoc v 0 ((into [] (v 1))(+ 1 (.indexOf (v 1) (symbol ";"))))) 
+        (assoc v 2 (into [] (concat ['VAR] (conj [] ((into [](amb 1)) 0) ))))
+        (cargar-var-en-tabla v)
+        (assoc v 1 (rest (v 1)))
+        (cargar-variables_en_tabla v)
+      )
+  )
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
