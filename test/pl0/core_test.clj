@@ -148,3 +148,21 @@
 ;    (is (= nil (dump nil)))
 ; )
 ;)
+
+(deftest test-generar
+  (testing "Prueba de funcion generar"
+
+    (is (= '[nil () [VAR X] :sin-errores [[0] []] 0 [[JMP ?] HLT]]
+           (generar '[nil () [VAR X] :sin-errores [[0] []] 0 [[JMP ?]]] 'HLT)))
+
+    (is (= '[nil () [VAR X] :sin-errores [[0] []] 0 [[JMP ?] [PFM 0]]]
+           (generar '[nil () [VAR X] :sin-errores [[0] []] 0 [[JMP ?]]] 'PFM 0)))
+
+    (is (= '[nil () [VAR X] :error [[0] []] 0 [[JMP ?]]]
+           (generar '[nil () [VAR X] :error [[0] []] 0 [[JMP ?]]] 'HLT)))
+    
+    (is (= '[nil () [VAR X] :error [[0] []] 0 [[JMP ?]]] 
+           (generar '[nil () [VAR X] :error [[0] []] 0 [[JMP ?]]] 'PFM 0)))
+  
+  )
+)

@@ -1046,8 +1046,18 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn generar 
   ([amb instr]
+    (cond
+    (not= :sin-errores (amb 3)) amb
+    :else
+    (assoc amb 6 (conj (amb 6) instr) )
+    )
   )
   ([amb instr val]
+  (cond
+    (not= :sin-errores (amb 3)) amb
+    :else
+    (assoc amb 6 (conj (amb 6) [instr val]) )
+    )
   )
 )
 
