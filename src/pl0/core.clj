@@ -67,6 +67,7 @@
 (declare a-mayusculas-aux)
 (declare palabras_reservadas)
 (declare cargar-variables_en_tabla)
+(declare printear-con-numero)
 
 (defn -main
   "TP Interprete PL0 Belinche"
@@ -985,7 +986,20 @@
 ; user=> (aplicar-relacional <= '[a b c])
 ; [a b c]
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defn aplicar-relacional [op pila]
+  (cond 
+    (= pila nil) nil
+    (< (count pila) 2) pila
+    (not (integer? (last pila) )) pila
+    (not (integer? (last (butlast pila) ))) pila
+    (symbol? op) pila
+    :else 
+      (try
+      (conj (pop (pop pila)) (get {false 0 true 1} (op  (last (butlast pila)) (last pila))))
+      (catch Exception e pila)
+      )
+  )
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1005,7 +1019,15 @@
 ; 0 nil
 ; nil
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defn printear-con-numero [index,x]
+  (prn index x)
+)
 (defn dump [cod]
+  (cond 
+    (= cod nil) (do (prn 0 nil) nil)
+    :else 
+      (first (map-indexed printear-con-numero cod))
+  )
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

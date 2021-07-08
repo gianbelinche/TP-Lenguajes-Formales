@@ -120,3 +120,31 @@
   
   )
 )
+
+(deftest test-aplicar-relacional
+  (testing "Prueba de funcion aplicar-relacional"
+
+    (is (= [1] (aplicar-relacional > [7 5])))
+
+    (is (= [4 1](aplicar-relacional > [4 7 5])))
+
+    (is (= [4 0] (aplicar-relacional = [4 7 5])))
+    
+    (is (= [4 1] (aplicar-relacional not= [4 7 5])))
+
+    (is (= [4 0] (aplicar-relacional < [4 7 5])))
+
+    (is (= [4 1] (aplicar-relacional <= [4 6 6])))
+
+    (is (= '[a b c] (aplicar-relacional <= '[a b c])))
+  
+  )
+)
+;La dejo comentada porque molesta que printee al hacer las pruebas, pero se puede probar que funciona correctamente
+;(deftest test-dump
+;  (testing  "Prueba de funcion dump"
+;    (is (= nil (dump '[[PFM 0] [PFI 2] MUL [PFI 1] ADD NEG])))
+;    (is (= nil (dump '[HLT])))
+;    (is (= nil (dump nil)))
+; )
+;)
