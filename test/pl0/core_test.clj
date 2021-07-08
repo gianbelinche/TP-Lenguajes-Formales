@@ -79,3 +79,44 @@
            (declaracion-var ['VAR (list 'X (symbol ",") 'Y (symbol ",")  'Z (symbol ";")'BEGIN 'X (symbol ":=") 7 (symbol ";") 'Y (symbol ":=") 12 (symbol ";") 'END (symbol ".")) [] :sin-errores [[0] []] 0 '[[JMP ?]]])))  
   )
 )       
+
+(deftest test-signo-unario
+  (testing "Prueba de funcion procesar-signo-unario"
+    (is (= ['+ (list 7 (symbol ";") 'Y ':= '- 12 (symbol ";") 'END (symbol ".")) ['VAR 'X (symbol ",") 'Y (symbol ";") 'BEGIN 'X (symbol ":=")] :error '[[0] [[X VAR 0] [Y VAR 1]]] 2 []]
+           (procesar-signo-unario ['+ (list 7 (symbol ";") 'Y ':= '- 12 (symbol ";") 'END (symbol ".")) ['VAR 'X (symbol ",") 'Y (symbol ";") 'BEGIN 'X (symbol ":=")] :error '[[0] [[X VAR 0] [Y VAR 1]]] 2 []])))
+
+    (is (= [7 (list (symbol ";") 'Y ':= '- 12 (symbol ";") 'END (symbol ".")) ['VAR 'X (symbol ",") 'Y (symbol ";") 'BEGIN 'X (symbol ":=")] :sin-errores '[[0] [[X VAR 0] [Y VAR 1]]] 2 []]
+           (procesar-signo-unario [7 (list (symbol ";") 'Y ':= '- 12 (symbol ";") 'END (symbol ".")) ['VAR 'X (symbol ",") 'Y (symbol ";") 'BEGIN 'X (symbol ":=")] :sin-errores '[[0] [[X VAR 0] [Y VAR 1]]] 2 []])))
+    (is (= [7 (list (symbol ";") 'Y ':= '- 12 (symbol ";") 'END (symbol ".")) ['VAR 'X (symbol ",") 'Y (symbol ";") 'BEGIN 'X (symbol ":=") (symbol "+")] :sin-errores '[[0] [[X VAR 0] [Y VAR 1]]] 2 []]
+           (procesar-signo-unario ['+ (list 7 (symbol ";") 'Y ':= '- 12 (symbol ";") 'END (symbol ".")) ['VAR 'X (symbol ",") 'Y (symbol ";") 'BEGIN 'X (symbol ":=")] :sin-errores '[[0] [[X VAR 0] [Y VAR 1]]] 2 []]))) 
+    (is (= [7 (list (symbol ";") 'Y ':= '- 12 (symbol ";") 'END (symbol ".")) ['VAR 'X (symbol ",") 'Y (symbol ";") 'BEGIN 'X (symbol ":=") (symbol "-")] :sin-errores '[[0] [[X VAR 0] [Y VAR 1]]] 2 []]
+           (procesar-signo-unario ['- (list 7 (symbol ";") 'Y ':= '- 12 (symbol ";") 'END (symbol ".")) ['VAR 'X (symbol ",") 'Y (symbol ";") 'BEGIN 'X (symbol ":=")] :sin-errores '[[0] [[X VAR 0] [Y VAR 1]]] 2 []]))) 
+  
+  )
+) 
+
+(deftest test-aplicar-aritmetico
+  (testing "Prueba de funcion aplicar-aritmetico"
+
+    (is (= [3] (aplicar-aritmetico + [1 2])))
+
+    (is (= [1 3] (aplicar-aritmetico - [1 4 1])))
+
+    (is (= [1 8] (aplicar-aritmetico * [1 2 4])))
+    
+    (is (= [1 0] (aplicar-aritmetico / [1 2 4])))
+
+    (is (= nil (aplicar-aritmetico + nil)))
+
+    (is (= [] (aplicar-aritmetico + [])))
+
+    (is (= [1] (aplicar-aritmetico + [1])))
+
+    (is (= [1 2 4] (aplicar-aritmetico 'hola [1 2 4])))
+
+    (is (= [1 2 4] (aplicar-aritmetico count [1 2 4])))
+
+    (is (= ['a 'b 'c] (aplicar-aritmetico + '[a b c])))
+  
+  )
+)

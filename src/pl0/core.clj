@@ -884,6 +884,19 @@
 ; [7 (; Y := - 12 ; END .) [VAR X , Y ; BEGIN X := -] :sin-errores [[0] [[X VAR 0] [Y VAR 1]]] 2 []]
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn procesar-signo-unario [amb]
+  (cond 
+    (not= :sin-errores (amb 3)) amb
+    (and (not= "+" (str (amb 0))) (not= "-" (str (amb 0))) ) amb
+    :else
+      [(first (amb 1))
+       (rest (amb 1))
+       (into [] (concat (amb 2) [(amb 0)]))
+       (amb 3)
+       (amb 4)
+       (amb 5)
+       (amb 6)
+      ]
+  )
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -938,6 +951,18 @@
 ; [a b c]
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn aplicar-aritmetico [op pila]
+  (cond 
+    (= pila nil) nil
+    (< (count pila) 2) pila
+    (not (integer? (last pila) )) pila
+    (not (integer? (last (butlast pila) ))) pila
+    (symbol? op) pila
+    :else 
+      (try
+      (conj (pop (pop pila)) (int (op  (last (butlast pila)) (last pila))))
+      (catch Exception e pila)
+      )
+  )
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
