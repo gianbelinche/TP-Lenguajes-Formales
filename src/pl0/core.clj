@@ -70,6 +70,7 @@
 (declare printear-con-numero)
 (declare termino_recur)
 (declare expresion-recur)
+(declare dev_nil)
 
 (defn -main
   "TP Interprete PL0 Belinche"
@@ -1090,11 +1091,15 @@
 (defn printear-con-numero [index,x]
   (prn index x)
 )
-(defn dump [cod]
+(defn dev_nil [a,b] nil)
+(defn dump [cod] 
   (cond 
     (= cod nil) (do (prn 0 nil) nil)
     :else 
-      (first (map-indexed printear-con-numero cod))
+      (as-> cod c
+        (map-indexed printear-con-numero c)
+        (reduce dev_nil c ) ;El reduce me parece un poco exagerado, pero si simplemente devolvia nil no se imprimian las instrucciones, no entiendo porque
+      )
   )
 )
 
