@@ -68,11 +68,12 @@
 (declare palabras_reservadas)
 (declare cargar-variables_en_tabla)
 (declare printear-con-numero)
+(declare termino_recur)
 
 (defn -main
   "TP Interprete PL0 Belinche"
   [& args]
-  (driver-loop))
+  (prn (expresion ['- (list (symbol "(") 'X '* 2 '+ 1 (symbol ")") 'END (symbol ".")) ['VAR 'X (symbol ";") 'BEGIN 'X (symbol ":=")] :sin-errores '[[0] [[X VAR 0]]] 1 []])))
 
 ; (defn spy
 ;   ([x] (do (prn x) x))
@@ -909,21 +910,32 @@
 ; user=> (termino ['X (list '* 2 'END (symbol ".")) ['VAR 'X (symbol ";") 'BEGIN 'X (symbol ":=")] :sin-errores '[[0] [[X VAR 0]]] 1 []])
 ; [END (.) [VAR X ; BEGIN X := X * 2] :sin-errores [[0] [[X VAR 0]]] 1 [[PFM 0] [PFI 2] MUL]]
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defn termino_recur [amb]
+  (let [op (amb 0)] 
+    (as-> amb v2
+      (assoc v2 2 (conj (v2 2) (v2 0)))
+      (assoc v2 0 (first (v2 1)))
+      (assoc v2 1 (rest (v2 1)))
+      (factor v2)
+      (generar v2 (get {'* 'MUL '/ 'DIV} op) )
+      (if (or (= (v2 0) (symbol "*")) (= (v2 0) (symbol "/")) )
+        (termino_recur v2)
+        v2
+      )
+    )
+  )
+)
+
 (defn termino [amb]
   (cond 
     (not= :sin-errores (amb 3)) amb
     :else
     (as-> amb v
       (factor v)
-      (let [op (v 0)] 
-          (as-> v v2
-            (assoc v2 2 (conj (v2 2) (v2 0)))
-            (assoc v2 0 (first (v2 1)))
-            (assoc v2 1 (rest (v2 1)))
-            (factor v2)
-            (generar v2 (get {'* 'MUL '/ 'DIV} op) )
-          )
-        )
+      (if (or (= (v 0) (symbol "*")) (= (v 0) (symbol "/")) )
+        (termino_recur v)
+          v
+      )
     )
   
   )
@@ -941,7 +953,42 @@
 ; user=> (expresion ['- (list (symbol "(") 'X '* 2 '+ 1 (symbol ")") 'END (symbol ".")) ['VAR 'X (symbol ";") 'BEGIN 'X (symbol ":=")] :sin-errores '[[0] [[X VAR 0]]] 1 []])
 ; [END (.) [VAR X ; BEGIN X := - ( X * 2 + 1 )] :sin-errores [[0] [[X VAR 0]]] 1 [[PFM 0] [PFI 2] MUL [PFI 1] ADD NEG]]
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defn expresion_recur [amb]
+(let [op (amb 0)]
+    (as-> amb v2
+      (escanear v2)
+      (termino v2)
+      (generar v2 (get {'+ 'ADD '- 'SUB} op))
+      (if (or (= (v2 0) (symbol "+")) (= (v2 0) (symbol "-")))
+        (expresion_recur v2)
+        v2
+      )
+    )
+  )
+)
+
 (defn expresion [amb]
+(cond
+  (not= :sin-errores (amb 3)) amb
+  :else
+  (let [signo (amb 0)]
+    (as-> amb v
+      (if (or (= (v 0) (symbol "+")) (= (v 0) (symbol "-")))
+        (escanear (escanear v))
+        v
+      )
+      (termino v)
+      (if (or (= (v 0) (symbol "+")) (= (v 0) (symbol "-")))
+        (expresion_recur v)
+        v
+      )
+      (escanear v)
+      (generar-signo v signo)
+
+    )
+  )
+
+)
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1144,7 +1191,7 @@
 ; user=> (generar-signo [nil () [] :error '[[0] [[X VAR 0]]] 1 '[MUL ADD]] '+)
 ; [nil () [] :error [[0] [[X VAR 0]]] 1 [MUL ADD]]
 ; user=> (generar-signo [nil () [] :sin-errores '[[0] [[X VAR 0]]] 1 '[MUL ADD]] '+)
-; [nil () [] :sin-errores [[0] [[X VAR 0]]] 1 [MUL ADD]]  ---> Deberia ser [nil () [] :sin-errores [[0] [[X VAR 0]]] 1 [MUL ADD ADD]]
+; [nil () [] :sin-errores [[0] [[X VAR 0]]] 1 [MUL ADD]]
 ; user=> (generar-signo [nil () [] :sin-errores '[[0] [[X VAR 0]]] 1 '[MUL ADD]] '*)
 ; [nil () [] :sin-errores [[0] [[X VAR 0]]] 1 [MUL ADD]]
 ; user=> (generar-signo [nil () [] :sin-errores '[[0] [[X VAR 0]]] 1 '[MUL ADD]] '-)
@@ -1153,7 +1200,6 @@
 (defn generar-signo [amb signo]
 (cond
   (not= :sin-errores (amb 3)) amb
-  (= signo '+) (assoc amb 6 (conj (amb 6) 'ADD))
   (= signo '-) (assoc amb 6 (conj (amb 6) 'NEG))
   :else amb
 )

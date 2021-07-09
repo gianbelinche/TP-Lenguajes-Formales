@@ -244,7 +244,7 @@
     (is (= [nil () [] :error '[[0] [[X VAR 0]]] 1 '[MUL ADD]]
            (generar-signo [nil () [] :error '[[0] [[X VAR 0]]] 1 '[MUL ADD]] '+)))
 
-   (is (= [nil () [] :sin-errores '[[0] [[X VAR 0]]] 1 '[MUL ADD ADD]]
+   (is (= [nil () [] :sin-errores '[[0] [[X VAR 0]]] 1 '[MUL ADD]]
            (generar-signo [nil () [] :sin-errores '[[0] [[X VAR 0]]] 1 '[MUL ADD]] '+)))  
 
    (is (= [nil () [] :sin-errores '[[0] [[X VAR 0]]] 1 '[MUL ADD]]
@@ -266,5 +266,24 @@
 
     (is (= ['END (list (symbol ".")) ['VAR 'X (symbol ";") 'BEGIN 'X (symbol ":=") 'X '/ 2] :sin-errores '[[0] [[X VAR 0]]] 1 '[[PFM 0] [PFI 2] DIV]]
         (termino ['X (list '/ 2 'END (symbol ".")) ['VAR 'X (symbol ";") 'BEGIN 'X (symbol ":=")] :sin-errores '[[0] [[X VAR 0]]] 1 []])) )
+  )
+)
+
+(deftest test-expresion
+  (testing "Prueba de funcion expresion"
+    (is (= ['- (list (symbol "(") 'X '* 2 '+ 1 (symbol ")") 'END (symbol ".")) ['VAR 'X (symbol ";") 'BEGIN 'X (symbol ":=")] :error '[[0] [[X VAR 0]]] 1 []]
+
+        (expresion ['- (list (symbol "(") 'X '* 2 '+ 1 (symbol ")") 'END (symbol ".")) ['VAR 'X (symbol ";") 'BEGIN 'X (symbol ":=")] :error '[[0] [[X VAR 0]]] 1 []]) 
+      ) 
+    )
+
+    (is (= ['END (list (symbol ".")) ['VAR 'X (symbol ";") 'BEGIN 'X (symbol ":=") '+ (symbol "(") 'X '* 2 '+ 1 (symbol ")")] :sin-errores '[[0] [[X VAR 0]]] 1 '[[PFM 0] [PFI 2] MUL [PFI 1] ADD]]
+
+        (expresion ['+ (list (symbol "(") 'X '* 2 '+ 1 (symbol ")") 'END (symbol ".")) ['VAR 'X (symbol ";") 'BEGIN 'X (symbol ":=")] :sin-errores '[[0] [[X VAR 0]]] 1 []])
+      )
+    )
+
+    (is (= ['END (list (symbol ".")) ['VAR 'X (symbol ";") 'BEGIN 'X (symbol ":=") '- (symbol "(") 'X '* 2 '+ 1 (symbol ")")] :sin-errores '[[0] [[X VAR 0]]] 1 '[[PFM 0] [PFI 2] MUL [PFI 1] ADD NEG]]
+        (expresion ['- (list (symbol "(") 'X '* 2 '+ 1 (symbol ")") 'END (symbol ".")) ['VAR 'X (symbol ";") 'BEGIN 'X (symbol ":=")] :sin-errores '[[0] [[X VAR 0]]] 1 []])) )
   )
 )
