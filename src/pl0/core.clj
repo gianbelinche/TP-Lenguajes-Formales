@@ -735,7 +735,7 @@
 (defn identificador? [x]
   (and 
     (not (palabra-reservada? x)) 
-    (boolean (re-matches #"^[QWERTYUIOPASDFGHJKLZXCVBNM].[QWERTYUIOPASDFGHJKLZXCVBNM1234567890]*" (str x)))
+    (boolean (re-matches #"^[QWERTYUIOPASDFGHJKLZXCVBNM][QWERTYUIOPASDFGHJKLZXCVBNM1234567890]*" (str x)))
   )
 )
 
@@ -910,6 +910,24 @@
 ; [END (.) [VAR X ; BEGIN X := X * 2] :sin-errores [[0] [[X VAR 0]]] 1 [[PFM 0] [PFI 2] MUL]]
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn termino [amb]
+  (cond 
+    (not= :sin-errores (amb 3)) amb
+    :else
+    (as-> amb v
+      (factor v)
+      (let [op (v 0)] 
+          (as-> v v2
+            (assoc v2 2 (conj (v2 2) (v2 0)))
+            (assoc v2 0 (first (v2 1)))
+            (assoc v2 1 (rest (v2 1)))
+            (factor v2)
+            (generar v2 (get {'* 'MUL '/ 'DIV} op) )
+          )
+        )
+    )
+  
+  )
+
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1126,13 +1144,19 @@
 ; user=> (generar-signo [nil () [] :error '[[0] [[X VAR 0]]] 1 '[MUL ADD]] '+)
 ; [nil () [] :error [[0] [[X VAR 0]]] 1 [MUL ADD]]
 ; user=> (generar-signo [nil () [] :sin-errores '[[0] [[X VAR 0]]] 1 '[MUL ADD]] '+)
-; [nil () [] :sin-errores [[0] [[X VAR 0]]] 1 [MUL ADD]]
+; [nil () [] :sin-errores [[0] [[X VAR 0]]] 1 [MUL ADD]]  ---> Deberia ser [nil () [] :sin-errores [[0] [[X VAR 0]]] 1 [MUL ADD ADD]]
 ; user=> (generar-signo [nil () [] :sin-errores '[[0] [[X VAR 0]]] 1 '[MUL ADD]] '*)
 ; [nil () [] :sin-errores [[0] [[X VAR 0]]] 1 [MUL ADD]]
 ; user=> (generar-signo [nil () [] :sin-errores '[[0] [[X VAR 0]]] 1 '[MUL ADD]] '-)
 ; [nil () [] :sin-errores [[0] [[X VAR 0]]] 1 [MUL ADD NEG]]
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn generar-signo [amb signo]
+(cond
+  (not= :sin-errores (amb 3)) amb
+  (= signo '+) (assoc amb 6 (conj (amb 6) 'ADD))
+  (= signo '-) (assoc amb 6 (conj (amb 6) 'NEG))
+  :else amb
+)
 )
 
 true

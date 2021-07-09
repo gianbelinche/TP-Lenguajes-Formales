@@ -29,6 +29,8 @@
     (is (= false (identificador? "2")))
     (is (= true (identificador? "V7R30K")))
     (is (= false (identificador? "V7-45")))
+    (is (= true (identificador? "X")))
+    (is (= true (identificador? 'X)))
     ))
 
 (deftest test-cadena?
@@ -230,5 +232,39 @@
    (is (= ['WRITELN (list 'END (symbol ".")) [] :sin-errores [[0 3] []] 6 '[[JMP ?] [JMP ?] [CAL 1] RET NEQ]]
            (generar-operador-relacional ['WRITELN (list 'END (symbol ".")) [] :sin-errores [[0 3] []] 6 '[[JMP ?] [JMP ?] [CAL 1] RET]] '<>)))            
 
+  )
+)
+
+(deftest test-generar-signo
+  (testing "Prueba de funcion generar-signo"
+
+    (is (= [nil () [] :error '[[0] [[X VAR 0]]] 1 '[MUL ADD]]
+           (generar-signo [nil () [] :error '[[0] [[X VAR 0]]] 1 '[MUL ADD]] '-)))
+
+    (is (= [nil () [] :error '[[0] [[X VAR 0]]] 1 '[MUL ADD]]
+           (generar-signo [nil () [] :error '[[0] [[X VAR 0]]] 1 '[MUL ADD]] '+)))
+
+   (is (= [nil () [] :sin-errores '[[0] [[X VAR 0]]] 1 '[MUL ADD ADD]]
+           (generar-signo [nil () [] :sin-errores '[[0] [[X VAR 0]]] 1 '[MUL ADD]] '+)))  
+
+   (is (= [nil () [] :sin-errores '[[0] [[X VAR 0]]] 1 '[MUL ADD]]
+           (generar-signo [nil () [] :sin-errores '[[0] [[X VAR 0]]] 1 '[MUL ADD]] '*))) 
+
+   (is (= [nil () [] :sin-errores '[[0] [[X VAR 0]]] 1 '[MUL ADD NEG]]
+           (generar-signo [nil () [] :sin-errores '[[0] [[X VAR 0]]] 1 '[MUL ADD]] '-)))       
+
+  )
+)
+
+(deftest test-termino
+  (testing "Prueba de funcion termino"
+    (is (= ['X (list '* 2 'END (symbol ".")) ['VAR 'X (symbol ";") 'BEGIN 'X (symbol ":=")] :error '[[0] [[X VAR 0]]] 1 []]
+        (termino ['X (list '* 2 'END (symbol ".")) ['VAR 'X (symbol ";") 'BEGIN 'X (symbol ":=")] :error '[[0] [[X VAR 0]]] 1 []])) )
+
+    (is (= ['END (list (symbol ".")) ['VAR 'X (symbol ";") 'BEGIN 'X (symbol ":=") 'X '* 2] :sin-errores '[[0] [[X VAR 0]]] 1 '[[PFM 0] [PFI 2] MUL]]
+        (termino ['X (list '* 2 'END (symbol ".")) ['VAR 'X (symbol ";") 'BEGIN 'X (symbol ":=")] :sin-errores '[[0] [[X VAR 0]]] 1 []])) )
+
+    (is (= ['END (list (symbol ".")) ['VAR 'X (symbol ";") 'BEGIN 'X (symbol ":=") 'X '/ 2] :sin-errores '[[0] [[X VAR 0]]] 1 '[[PFM 0] [PFI 2] DIV]]
+        (termino ['X (list '/ 2 'END (symbol ".")) ['VAR 'X (symbol ";") 'BEGIN 'X (symbol ":=")] :sin-errores '[[0] [[X VAR 0]]] 1 []])) )
   )
 )
