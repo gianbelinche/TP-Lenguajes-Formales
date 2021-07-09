@@ -69,11 +69,12 @@
 (declare cargar-variables_en_tabla)
 (declare printear-con-numero)
 (declare termino_recur)
+(declare expresion-recur)
 
 (defn -main
   "TP Interprete PL0 Belinche"
   [& args]
-  (prn (expresion ['- (list (symbol "(") 'X '* 2 '+ 1 (symbol ")") 'END (symbol ".")) ['VAR 'X (symbol ";") 'BEGIN 'X (symbol ":=")] :sin-errores '[[0] [[X VAR 0]]] 1 []])))
+  (driver-loop))
 
 ; (defn spy
 ;   ([x] (do (prn x) x))
@@ -718,8 +719,8 @@
 )
 
 (def palabras_reservadas
-(hash-set 'CONST 'VAR 'PROCEDURE 'CALL 'BEGIN 'END 'IF 'THEN 'WHILE 'DO 'ODD
-          "CONST" "VAR" "PROCEDURE" "CALL" "BEGIN" "END" "IF" "THEN" "WHILE" "DO" "ODD"
+(hash-set 'CONST 'VAR 'PROCEDURE 'CALL 'BEGIN 'END 'IF 'THEN 'WHILE 'DO 'ODD 'WRITELN 'READLN 'WRITE
+          "CONST" "VAR" "PROCEDURE" "CALL" "BEGIN" "END" "IF" "THEN" "WHILE" "DO" "ODD" "WRITELN" "READLN" "WRITE"
 )
 )
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -974,15 +975,17 @@
   (let [signo (amb 0)]
     (as-> amb v
       (if (or (= (v 0) (symbol "+")) (= (v 0) (symbol "-")))
-        (escanear (escanear v))
+        (escanear v)
         v
       )
-      (termino v)
+      (if (= (v 0) (symbol "("))
+        (escanear (expresion (escanear v)))
+        (termino v)
+      )
       (if (or (= (v 0) (symbol "+")) (= (v 0) (symbol "-")))
         (expresion_recur v)
         v
       )
-      (escanear v)
       (generar-signo v signo)
 
     )
