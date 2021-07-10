@@ -680,6 +680,44 @@
                   (do (print (apply str (butlast (rest (str (second fetched)))))) (flush)
                       (recur cod mem (inc cont-prg) pila-dat pila-llam)))
           NL (do (prn) (recur cod mem (inc cont-prg) pila-dat pila-llam))
+
+          POP (recur cod (assoc mem (second fetched) (last pila-dat)) (inc cont-prg) (pop pila-dat) pila-llam)
+
+          PFM (recur cod mem (inc cont-prg) (conj pila-dat (mem (second fetched))) pila-llam)
+
+          PFI (recur cod mem (inc cont-prg) (conj pila-dat (second fetched)) pila-llam)
+
+          ADD (recur cod mem (inc cont-prg) (aplicar-aritmetico + pila-dat) pila-llam)
+
+          SUB (recur cod mem (inc cont-prg) (aplicar-aritmetico - pila-dat) pila-llam)
+
+          MUL (recur cod mem (inc cont-prg) (aplicar-aritmetico * pila-dat) pila-llam)
+
+          DIV (recur cod mem (inc cont-prg) (aplicar-aritmetico / pila-dat) pila-llam)
+
+          EQ (recur cod mem (inc cont-prg) (aplicar-relacional = pila-dat) pila-llam)
+
+          NEQ (recur cod mem (inc cont-prg) (aplicar-relacional not= pila-dat) pila-llam)
+
+          GT (recur cod mem (inc cont-prg) (aplicar-relacional > pila-dat) pila-llam)
+
+          GTE (recur cod mem (inc cont-prg) (aplicar-relacional >= pila-dat) pila-llam)
+
+          LT (recur cod mem (inc cont-prg) (aplicar-relacional < pila-dat) pila-llam)
+
+          LTE (recur cod mem (inc cont-prg) (aplicar-relacional <= pila-dat) pila-llam)
+
+          NEG (recur cod mem (inc cont-prg) (conj (pop pila-dat) (* -1 (last pila-dat)))  pila-llam)
+
+          ODD (recur cod mem (inc cont-prg) (conj (pop pila-dat) (get {true 1 false 0} (odd? (last pila-dat))))  pila-llam)
+
+          JMP (recur cod mem (second fetched) pila-dat pila-llam)
+
+          JC (recur cod mem   (if (zero? (last pila-dat)) (inc cont-prg) (second fetched) )  (pop pila-dat) pila-llam)
+
+          CAL (recur cod mem (second fetched) pila-dat (conj pila-llam (inc cont-prg)))
+
+          RET (recur cod mem (last pila-llam) pila-dat (pop pila-llam))
        )
   )
 )
